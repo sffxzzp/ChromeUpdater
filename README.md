@@ -4,7 +4,7 @@ ChromeUpdater-Python
 
 使用方法
 ------
-直接[下载](https://coding.net/u/sffxzzp/p/ChromeUpdater-Python/git/archive/master)并执行`chromeupdater.bat`即可。
+在`git clone --recursive`后执行一次`chromeupdater.bat`即可。
 
 设置
 ------
