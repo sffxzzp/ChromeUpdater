@@ -1,3 +1,0 @@
-[submodule "chromeupdater/runtime"]
-	path = chromeupdater/runtime
-	url = https://github.com/phuslu/pybuild3

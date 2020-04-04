@@ -4,7 +4,9 @@ ChromeUpdater-Python
 
 使用方法
 ------
-在`git clone --recursive`后执行一次`chromeupdater.bat`即可。
+下载后执行`chromeupdater.bat`即可。
+
+如有需要启动浏览器时检查更新，请配置`GreenChrome.ini`文件末尾部分。
 
 设置
 ------
@@ -20,8 +22,6 @@ ChromeUpdater-Python
 ------
 [phuslu/pybuild3](https://github.com/phuslu/pybuild3)
 
-[DevWarningPatch](https://stackoverflow.com/questions/30287907/how-to-get-rid-of-disable-developer-mode-extensions-pop-up/30361260#30361260)
-
-[GreenChrome](https://shuax.com/portfolio/greenchrome/)
+[GreenChrome](https://github.com/shuax/GreenChrome)
 
 [7-Zip](https://www.7-zip.org/)

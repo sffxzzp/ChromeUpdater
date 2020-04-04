@@ -1,5 +1,5 @@
 # coding=utf-8
-import urllib.parse, urllib.request, http.cookiejar, json, re, os
+import urllib.parse, urllib.request, http.cookiejar, json, re, os, zipfile
 
 def findstr(rule, string):
     find_str = re.compile(rule)
@@ -40,6 +40,12 @@ class utillib:
         self.url = []
         self.filename = ''
         self.cfg = {}
+    def unzip(self, src, dest, password=''):
+        with zipfile.ZipFile(src) as zfile:
+            try:
+                zfile.extractall(path=dest, pwd=password)
+            except RuntimeError as e:
+                pass
     def loadcfg(self):
         cont = filelib().open('settings.json')
         cont = re.sub('(?<!:)\\/\\/.*|\\/\\*(\\s|.)*?\\*\\/', '', cont)
@@ -62,11 +68,11 @@ class utillib:
         per = 100.0 * a * b / c
         if per > 100:
             per = 100
-        print('%.2f%%\r' % per, end="")
+        print('\r%.2f%%' % per, end="")
     def download(self):
         for url in self.url:
             try:
-                print('Downloading %s from url:%s' % (self.filename, url))
+                print('Downloading %s from url: %s' % (self.filename, url))
                 urllib.request.urlretrieve(url, '.\\'+self.filename, self.cbk)
                 print('Download complete!')
                 return True
@@ -83,22 +89,32 @@ class utillib:
         os.system('move .\\Chrome-bin\\'+self.version+' ..\\')
         os.system('move .\\Chrome-bin\\*.* ..\\')
         os.system('rd /s /q Chrome-bin')
-        os.system('move ..\\'+self.version+'\\chrome.exe.sig ..\\')
+        # os.system('move ..\\'+self.version+'\\chrome.exe.sig ..\\')
         print('Extract complete!')
     def gc(self):
-        print('Installing greenchrome...')
-        urllib.request.urlretrieve('https://shuax.com/gc', 'gc.7z', self.cbk)
-        os.system('7za.exe x "gc.7z" -o"gc" -aoa -y')
-        os.system('del /f /q "gc.7z"')
-        os.system('move .\\gc\\GreenChrome.ini ..\\GreenChromeNew.ini')
+        print('Installing greenchrome...', end="")
+        try:
+            print('')
+            # urllib.request.urlretrieve('https://shuax.com/gc', 'gc.7z', self.cbk)
+            urllib.request.urlretrieve('https://static.pzhacm.org/shuax/GreenChrome6.6.7.zip', 'gc.zip', self.cbk)
+        except:
+            print('Error!')
+            os.exit()
+        # os.system('7za.exe x "gc.7z" -o"gc" -aoa -y')
+        self.unzip('gc.zip', 'gc')
+        # os.system('del /f /q "gc.7z"')
+        os.system('del /f /q "gc.zip"')
+        if os.path.exists('..\\GreenChrome.ini'):
+            os.system('move .\\gc\\GreenChrome.ini ..\\GreenChromeNew.ini')
+        else:
+            os.system('move .\\gc\\GreenChrome.ini ..\\')
         os.system('move .\\gc\\'+self.structure+'\\*.dll ..\\')
         os.system('rd /s /q gc')
         print('complete!')
     def patch(self):
-        print('Patching chrome.dll for dev-warning...')
-        os.system('copy .\\DevWarningPatch.bat ..\\'+self.version+'\\DevWarningPatch.bat')
-        with cd('..\\'+self.version):
-            os.system('call .\\DevWarningPatch.bat')
+        print('Injecting GreenChrome.dll to Chrome.')
+        os.system('setdll.exe /d:..\\GreenChrome.dll ..\\chrome.exe')
+        os.system('del /f /q ..\\chrome.exe~')
     def clean(self):
         print('Cleaning old version...')
         os.system('rd /s /q ..\\'+self.version)
