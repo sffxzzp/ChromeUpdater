@@ -127,10 +127,13 @@ class utillib:
         print(self.version)
 
 class weblib:
-    def query(self, url, postdata={}):
-        if len(postdata)>0:
-            postdata = urllib.parse.urlencode(postdata).encode('utf-8')
-            req = urllib.request.Request(url, postdata)
+    def query(self, url, method='GET', postdata={}):
+        if method != 'GET':
+            if postdata != {}:
+                postdata = urllib.parse.urlencode(postdata).encode('utf-8')
+                req = urllib.request.Request(url, postdata, method=method)
+            else:
+                req = urllib.request.Request(url, method=method)
         else:
             req = urllib.request.Request(url)
         urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())))
@@ -143,14 +146,13 @@ def main():
     current.loadcfg()
     new.branch = current.branch
     new.structure = current.structure
-    updateUrl = 'https://api.pzhacm.org/iivb/cu.json'
+    updateUrl = 'https://api.shuax.com/v2/chrome'
     print('checking new version...')
-    updateInfo = json.loads(weblib().query(updateUrl))
-    proxy = updateInfo["proxy"]
-    updateInfo = updateInfo[new.branch][new.structure]
+    updateInfo = json.loads(weblib().query(updateUrl, method='POST'))
+    updateInfo = updateInfo['win_%s_%s' % (new.branch.lower(), new.structure.lower())]
     new.version = updateInfo["version"]
-    new.url = updateInfo["url"]
-    new.filename = updateInfo["name"]
+    new.url = updateInfo["urls"]
+    new.filename = '%s_chrome_installer.exe' % new.version
     if current.older(new.version):
         print('Branch: '+current.branch+'  Structure: '+current.structure)
         print('A newer version found, '+current.version+' -> '+new.version)
