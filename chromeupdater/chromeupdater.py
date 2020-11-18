@@ -89,27 +89,14 @@ class utillib:
         os.system('move .\\Chrome-bin\\'+self.version+' ..\\')
         os.system('move .\\Chrome-bin\\*.* ..\\')
         os.system('rd /s /q Chrome-bin')
-        # os.system('move ..\\'+self.version+'\\chrome.exe.sig ..\\')
         print('Extract complete!')
     def gc(self):
         print('Installing greenchrome...', end="")
-        try:
-            print('')
-            # urllib.request.urlretrieve('https://shuax.com/gc', 'gc.7z', self.cbk)
-            urllib.request.urlretrieve('https://static.pzhacm.org/shuax/GreenChrome6.6.7.zip', 'gc.zip', self.cbk)
-        except:
-            print('Error!')
-            os.exit()
-        # os.system('7za.exe x "gc.7z" -o"gc" -aoa -y')
-        self.unzip('gc.zip', 'gc')
-        # os.system('del /f /q "gc.7z"')
-        os.system('del /f /q "gc.zip"')
         if os.path.exists('..\\GreenChrome.ini'):
-            os.system('move .\\gc\\GreenChrome.ini ..\\GreenChromeNew.ini')
+            os.system('copy /y .\\gc\\GreenChrome.ini ..\\GreenChromeNew.ini')
         else:
-            os.system('move .\\gc\\GreenChrome.ini ..\\')
-        os.system('move .\\gc\\'+self.structure+'\\*.dll ..\\')
-        os.system('rd /s /q gc')
+            os.system('copy /y .\\gc\\GreenChrome.ini ..\\')
+        os.system('copy /y .\\gc\\'+self.structure+'\\*.dll ..\\')
         print('complete!')
     def patch(self):
         print('Injecting GreenChrome.dll to Chrome.')
