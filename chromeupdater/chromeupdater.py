@@ -1,5 +1,5 @@
 # coding=utf-8
-import urllib.parse, urllib.request, http.cookiejar, json, re, os, zipfile
+import urllib.request, http.cookiejar, json, re, os, zipfile
 
 def findstr(rule, string):
     find_str = re.compile(rule)
@@ -117,7 +117,7 @@ class weblib:
     def query(self, url, method='GET', postdata={}):
         if method != 'GET':
             if postdata != {}:
-                postdata = urllib.parse.urlencode(postdata).encode('utf-8')
+                postdata = postdata.encode('utf-8')
                 req = urllib.request.Request(url, postdata, method=method)
             else:
                 req = urllib.request.Request(url, method=method)
@@ -127,19 +127,57 @@ class weblib:
         result = urllib.request.urlopen(req).read().decode('utf-8')
         return result
 
+class chrome:
+    def __init__(self):
+        # https://github.com/lyonna/ChromeOfflineInstallerDownloadAPI/blob/master/coi.php
+        self.url = 'https://tools.google.com/service/update2'
+        self.verlist = {
+            'win': '6.3'
+        }
+        self.appidlist = {
+            'win_stable': '{8A69D345-D564-463C-AFF1-A69D9E530F96}',
+            'win_beta': '{8A69D345-D564-463C-AFF1-A69D9E530F96}',
+            'win_dev': '{8A69D345-D564-463C-AFF1-A69D9E530F96}',
+            'win_canary': '{4EA16AC7-FD5A-47C3-875B-DBF4A2008C20}'
+        }
+        self.aplist = {
+            'win_stable_x86': '-multi-chrome',
+            'win_stable_x64': 'x64-stable-multi-chrome',
+            'win_beta_x86': '1.1-beta',
+            'win_beta_x64': 'x64-beta-multi-chrome',
+            'win_dev_x86': '2.0-dev',
+            'win_dev_x64': 'x64-dev-multi-chrome',
+            'win_canary_x86': '',
+            'win_canary_x64': 'x64-canary'
+        }
+        self.version = '0.0.0.0'
+        self.branch = 'Stable'
+        self.structure = 'x86'
+        self.downloadUrl = []
+    def getInfo(self, branch, structure):
+        ver = self.verlist['win']
+        appid = self.appidlist['win_'+branch.lower()]
+        ap = self.aplist['win_'+branch.lower()+'_'+structure.lower()]
+        postData = "<?xml version='1.0' encoding='UTF-8'?><request protocol='3.0' version='1.3.23.9' shell_version='1.3.21.103' ismachine='0' sessionid='{3597644B-2952-4F92-AE55-D315F45F80A5}' installsource='ondemandcheckforupdate' requestid='{CD7523AD-A40D-49F4-AEEF-8C114B804658}' dedup='cr'><hw sse='1' sse2='1' sse3='1' ssse3='1' sse41='1' sse42='1' avx='1' physmemory='12582912' /><os platform='win' version='"+ver+"' arch='"+structure.lower()+"'/><app appid='"+appid+"' ap='"+ap+"' version='' nextversion='' lang='' brand='GGLS' client=''><updatecheck/></app></request>"
+        res = weblib().query(self.url, 'POST', postData)
+        self.version = findstr('<manifest version="(\d*?\.\d*?\.\d*?\.\d*?)">', res)[0]
+        self.filename = findstr('event="install" run="(.*?)"/>', res)[0]
+        downloadUrl = findstr('<url codebase="(.*?)"/>', res)
+        for dUrl in downloadUrl:
+            self.downloadUrl.append(dUrl+self.filename)
+
 def main():
     current = utillib()
     new = utillib()
     current.loadcfg()
     new.branch = current.branch
     new.structure = current.structure
-    updateUrl = 'https://api.shuax.com/v2/chrome'
+    updater = chrome()
+    updater.getInfo(new.branch.lower(), new.structure.lower())
     print('checking new version...')
-    updateInfo = json.loads(weblib().query(updateUrl, method='POST'))
-    updateInfo = updateInfo['win_%s_%s' % (new.branch.lower(), new.structure.lower())]
-    new.version = updateInfo["version"]
-    new.url = updateInfo["urls"]
-    new.filename = '%s_chrome_installer.exe' % new.version
+    new.version = updater.version
+    new.url = updater.downloadUrl
+    new.filename = updater.filename
     if current.older(new.version):
         print('Branch: '+current.branch+'  Structure: '+current.structure)
         print('A newer version found, '+current.version+' -> '+new.version)
