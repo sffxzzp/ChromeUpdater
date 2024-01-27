@@ -86,25 +86,27 @@ class utillib:
         os.system('del /f /q "'+self.filename+'"')
         os.system('7za.exe x "chrome.7z" -o. -aoa -y')
         os.system('del /f /q chrome.7z')
-        os.system('move .\\Chrome-bin\\'+self.version+' ..\\')
-        os.system('move .\\Chrome-bin\\*.* ..\\')
+        os.system('md ..\\App\\')
+        os.system('move .\\Chrome-bin\\'+self.version+' ..\\App\\')
+        os.system('move .\\Chrome-bin\\*.* ..\\App')
         os.system('rd /s /q Chrome-bin')
+        os.system('copy .\\chrome.exe ..\\')
+        os.system('copy .\\chrome.ini ..\\')
         print('Extract complete!')
     def gc(self):
         print('Installing greenchrome...', end="")
-        if os.path.exists('..\\GreenChrome.ini'):
-            os.system('copy /y .\\gc\\GreenChrome.ini ..\\GreenChromeNew.ini')
-        else:
-            os.system('copy /y .\\gc\\GreenChrome.ini ..\\')
-        os.system('copy /y .\\gc\\'+self.structure+'\\*.dll ..\\')
+        os.system('copy /y .\\gc\\'+self.structure+'\\*.dll ..\\App\\')
         print('complete!')
     def patch(self):
-        print('Injecting GreenChrome.dll to Chrome.')
-        os.system('setdll.exe /d:..\\GreenChrome.dll ..\\chrome.exe')
-        os.system('del /f /q ..\\chrome.exe~')
+        print('Injecting version.dll to Chrome.')
+        setdll = 'setdll32.exe'
+        if self.structure == 'x64':
+            setdll = 'setdll64.exe'
+        os.system(setdll + ' /d:..\\App\\version.dll ..\\App\\chrome.exe')
+        os.system('del /f /q ..\\App\\chrome.exe~')
     def clean(self):
         print('Cleaning old version...')
-        os.system('rd /s /q ..\\'+self.version)
+        os.system('rd /s /q ..\\App\\'+self.version)
     def replaced(self, ver):
         self.cfg["Version"] = ver
         filelib().write('settings.json', json.dumps(self.cfg))
@@ -132,7 +134,7 @@ class chrome:
         # https://github.com/lyonna/ChromeOfflineInstallerDownloadAPI/blob/master/coi.php
         self.url = 'https://tools.google.com/service/update2'
         self.verlist = {
-            'win': '6.3'
+            'win': '10.0'
         }
         self.appidlist = {
             'win_stable': '{8A69D345-D564-463C-AFF1-A69D9E530F96}',

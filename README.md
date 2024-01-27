@@ -6,7 +6,7 @@ ChromeUpdater-Python
 ------
 下载后执行`chromeupdater.bat`即可。
 
-如有需要启动浏览器时检查更新，请配置`GreenChrome.ini`文件末尾部分。
+如有需要启动浏览器时检查更新，请配置`chrome.ini`文件。
 
 设置
 ------
@@ -22,6 +22,6 @@ ChromeUpdater-Python
 ------
 [phuslu/pybuild3](https://github.com/phuslu/pybuild3)
 
-[GreenChrome](https://github.com/shuax/GreenChrome)
+[Chrome++](https://github.com/shuax/chrome_plus)
 
 [7-Zip](https://www.7-zip.org/)
